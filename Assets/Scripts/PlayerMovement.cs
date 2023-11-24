@@ -11,6 +11,15 @@ public class PlayerMovement : MonoBehaviour
     private float _dirX = 0f;
     private readonly float _moveSpeed = 7f;
     private readonly float _jumpForce = 14f;
+    private static readonly int State = Animator.StringToHash("state");
+
+    private enum MovementState
+    {
+        Idle,
+        Running,
+        Jumping,
+        Falling
+    }
 
     // Start is called before the first frame update
     private void Start()
@@ -28,22 +37,35 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateMovementState()
     {
+        MovementState state;
+
         this.Jump();
         _dirX = Input.GetAxisRaw("Horizontal");
         this.Walk();
-        
+
         switch (_dirX)
         {
             case > 0f:
+                state = MovementState.Running;
                 this.MovingRight();
                 break;
             case < 0f:
+                state = MovementState.Running;
                 this.MovingLeft();
                 break;
             default:
-                this.Idle();
+                state = MovementState.Idle;
                 break;
         }
+
+        state = _rb.velocity.y switch
+        {
+            > .1f => MovementState.Jumping,
+            < -.1f => MovementState.Falling,
+            _ => state
+        };
+
+        _animator.SetInteger(State, (int)state);
     }
 
     private void Jump()
@@ -61,18 +83,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovingRight()
     {
-        _animator.SetBool(Running, true);
         _sprite.flipX = false;
     }
 
     private void MovingLeft()
     {
-        _animator.SetBool(Running, true);
         _sprite.flipX = true;
-    }
-
-    private void Idle()
-    {
-        _animator.SetBool(Running, false);
     }
 }
