@@ -12,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
     private readonly float _moveSpeed = 7f;
     private readonly float _jumpForce = 14f;
     private static readonly int State = Animator.StringToHash("state");
+    private BoxCollider2D _playerCollider;
+    [SerializeField] private LayerMask _jumpableGround;
 
     private enum MovementState
     {
@@ -25,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _playerCollider = GetComponent<BoxCollider2D>();
         _animator = GetComponent<Animator>();
         _sprite = GetComponent<SpriteRenderer>();
     }
@@ -70,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             _rb.velocity = new Vector3(_rb.velocity.x, _jumpForce);
         }
@@ -89,5 +92,11 @@ public class PlayerMovement : MonoBehaviour
     private void MovingLeft()
     {
         _sprite.flipX = true;
+    }
+
+    private bool IsGrounded()
+    {
+        var bounds = _playerCollider.bounds;
+        return Physics2D.BoxCast(bounds.center, bounds.size, 0f, Vector2.down, .1f, _jumpableGround);
     }
 }
