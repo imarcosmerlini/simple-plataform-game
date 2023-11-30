@@ -14,7 +14,6 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int State = Animator.StringToHash("state");
     private BoxCollider2D _playerCollider;
     [SerializeField] private LayerMask _jumpableGround;
-
     private enum MovementState
     {
         Idle,
@@ -22,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
         Jumping,
         Falling
     }
+
+    [SerializeField] private AudioSource jumpSoundEffect;
 
     // Start is called before the first frame update
     private void Start()
@@ -75,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
+            jumpSoundEffect.Play();
             _rb.velocity = new Vector3(_rb.velocity.x, _jumpForce);
         }
     }
